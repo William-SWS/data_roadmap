@@ -207,7 +207,7 @@ a[data-verified="false"]::after { content: " (buscar)"; color: var(--warn); font
 
 .layout {
   max-width: 1320px; margin: 0 auto;
-  display: grid; grid-template-columns: 300px minmax(0, 1fr); align-items: start;
+  display: grid; grid-template-columns: 320px minmax(0, 1fr); align-items: start;
 }
 
 .sidebar {
@@ -232,30 +232,31 @@ a[data-verified="false"]::after { content: " (buscar)"; color: var(--warn); font
 .phase-btn .num { font-family: var(--font-display); font-size: 1.35rem; color: var(--ink-mute); line-height: 1; }
 .phase-btn .count { font-family: var(--font-mono); font-size: 0.66rem; color: var(--ink-mute); }
 .phase-btn:hover { background: var(--bg-surface-hover); }
-.phase-btn[aria-current="true"] {
-  border-left-color: var(--blueprint); background: var(--blueprint-tint); font-weight: 600;
-}
+.phase-btn[aria-current="true"] { border-left-color: var(--blueprint); background: var(--blueprint-tint); font-weight: 600; }
 .phase-btn[aria-current="true"] .num { color: var(--blueprint); }
-.phase-btn:focus-visible, .topic-link:focus-visible, .menu-toggle:focus-visible, .theme-toggle:focus-visible, .btn:focus-visible {
+.phase-btn:focus-visible, .topic-link:focus-visible, .menu-toggle:focus-visible,
+.theme-toggle:focus-visible, .btn:focus-visible, .chip:focus-visible {
   outline: 2px solid var(--blueprint); outline-offset: -2px;
 }
 
 .topic-list { padding: 2px 0 10px 0; }
-.topic-list[hidden] { display: none; }
+.topic-list[hidden], .sub-list[hidden] { display: none; }
 .topic-link {
   display: block; padding: 5px 14px 5px 50px; border: 0; border-bottom: 0;
   font-family: var(--font-mono); font-size: 0.74rem; line-height: 1.35; color: var(--ink-soft);
-  position: relative;
+  position: relative; cursor: pointer;
 }
 .topic-link::before {
   content: ""; position: absolute; left: 36px; top: 0.72em; width: 6px; height: 6px;
-  border-radius: 50%; background: var(--ink-mute);
+  border-radius: 50%; background: var(--blueprint);
 }
-.topic-link.central::before { background: var(--blueprint); }
-.topic-link.sub { padding-left: 64px; font-size: 0.7rem; color: var(--ink-mute); }
-.topic-link.sub::before { left: 52px; width: 4px; height: 4px; }
+.topic-link.sub { padding-left: 66px; font-size: 0.71rem; color: var(--ink-mute); }
+.topic-link.sub::before { left: 52px; width: 5px; height: 5px; background: var(--ink-mute); border-radius: 0; }
 .topic-link:hover { color: var(--blueprint); background: var(--bg-surface-hover); border-bottom: 0; }
-.topic-link.is-active { color: var(--blueprint); font-weight: 700; }
+.topic-link[aria-current="true"] {
+  color: var(--blueprint); font-weight: 700; background: var(--blueprint-tint);
+  box-shadow: inset 3px 0 0 var(--blueprint);
+}
 .topic-link mark { background: var(--blueprint-tint-strong); color: inherit; padding: 0 1px; }
 .nav-empty { font-family: var(--font-mono); font-size: 0.75rem; color: var(--ink-mute); padding: 12px 16px; }
 
@@ -265,7 +266,25 @@ a[data-verified="false"]::after { content: " (buscar)"; color: var(--warn); font
 .legend summary { cursor: pointer; font-weight: 500; color: var(--ink); }
 .legend p { margin: 8px 0 0; }
 
-.phase-page[hidden] { display: none; }
+.phase-page[hidden], section.node[hidden] { display: none; }
+
+/* Trilha do tópico aberto */
+.crumb {
+  font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--ink-mute); margin: 22px 0 10px;
+}
+.crumb b { color: var(--blueprint); font-weight: 500; }
+.group-nav { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 20px; }
+.chip {
+  font-family: var(--font-mono); font-size: 0.7rem; padding: 4px 9px; cursor: pointer;
+  border: 1px solid var(--border); background: var(--bg-surface); color: var(--ink-soft);
+}
+.chip:hover { border-color: var(--blueprint); color: var(--blueprint); }
+.chip[aria-current="true"] { background: var(--blueprint); border-color: var(--blueprint); color: #fff; }
+.chip.head { border-style: dashed; }
+
+.phase-title { margin-top: 0; }
+section.node.central { margin-top: 0; }
 
 .nav-backdrop { display: none; }
 
@@ -273,14 +292,12 @@ a[data-verified="false"]::after { content: " (buscar)"; color: var(--warn); font
   .menu-toggle { display: inline-block; }
   .layout { grid-template-columns: minmax(0, 1fr); }
   .sidebar {
-    position: fixed; z-index: 150; top: 0; left: 0; height: 100%; width: min(320px, 86vw);
+    position: fixed; z-index: 150; top: 0; left: 0; height: 100%; width: min(330px, 88vw);
     transform: translateX(-100%); transition: transform 0.2s ease;
     box-shadow: var(--shadow-hard-lg); padding-top: env(safe-area-inset-top, 0px);
   }
   .sidebar.open { transform: none; }
-  .nav-backdrop.open {
-    display: block; position: fixed; inset: 0; z-index: 140; background: rgba(0, 0, 0, 0.35);
-  }
+  .nav-backdrop.open { display: block; position: fixed; inset: 0; z-index: 140; background: rgba(0, 0, 0, 0.35); }
   .content { padding: 0 16px 32px; }
 }
 @media (prefers-reduced-motion: reduce) { .sidebar { transition: none; } }
@@ -290,7 +307,7 @@ a[data-verified="false"]::after { content: " (buscar)"; color: var(--warn); font
 <a class="skip-link" href="#main">Ir para o conteúdo</a>
 <header class="site-header">
 <div class="header-inner">
-<button type="button" id="menuToggle" class="menu-toggle" aria-controls="sidebar" aria-expanded="false">☰ Fases</button>
+<button type="button" id="menuToggle" class="menu-toggle" aria-controls="sidebar" aria-expanded="false">☰ Tópicos</button>
 <span class="logo"><span class="logo-icon"></span>Roadmap Curado</span>
 <span class="header-meta">576 NÓS · 72 CENTRAIS · 12 FASES</span>
 <button type="button" id="themeToggle" class="theme-toggle" aria-label="Alternar tema claro/escuro">◐</button>
@@ -310,7 +327,7 @@ a[data-verified="false"]::after { content: " (buscar)"; color: var(--warn); font
 <details class="legend">
 <summary>Como ler este roadmap</summary>
 <p>
-Cada nó do roadmap original foi preservado como uma seção com <code>data-node-id</code>, agora organizada por fase no menu lateral.
+Cada nó do roadmap original foi preservado como uma seção com <code>data-node-id</code>, agora aberta um tópico por vez pelo menu lateral.
 Nós centrais (marcados em amarelo no roadmap original — aqui com moldura azul e sombra) têm materiais, exercícios,
 mini-projeto e no mínimo 3 projetos completos. Nós comuns têm materiais, exercícios e mini-projeto.
 Links marcados com <code>data-verified="false"</code> (sufixo "(buscar)") indicam que o recurso não pôde ser
@@ -318,6 +335,8 @@ verificado de forma exata; use o termo de busca fornecido no título do link. Ne
 com paywall ou assinatura obrigatória foi incluído.
 </p>
 </details>
+<p class="crumb" id="crumb"></p>
+<nav class="group-nav" id="groupNav" aria-label="Tópicos deste bloco"></nav>
 <main id="main" tabindex="-1">
 <section class="phase-page" id="fase-1" data-phase-num="1" data-phase-name="Python Fundamentals">
 <h1 class="phase-title"><span class="fig-label">Fase 1/12</span>Python Fundamentals</h1>
@@ -41085,9 +41104,9 @@ com paywall ou assinatura obrigatória foi incluído.
 </section>
 </main>
 <div class="pager-bar bottom-pager">
-<button type="button" class="btn prevPhaseBtn">◂ Fase anterior</button>
-<span class="pager-status"><span class="label">Fase <span class="phaseCurrentNum">1</span>/12</span></span>
-<button type="button" class="btn btn-primary nextPhaseBtn">Próxima fase ▸</button>
+<button type="button" class="btn prevNodeBtn">◂ Tópico anterior</button>
+<span class="pager-status"><span class="label" id="pagerLabel"></span></span>
+<button type="button" class="btn btn-primary nextNodeBtn">Próximo tópico ▸</button>
 </div>
 </div>
 </div>
@@ -41095,190 +41114,224 @@ com paywall ou assinatura obrigatória foi incluído.
 <script>
 (function () {
   var pages = Array.prototype.slice.call(document.querySelectorAll('.phase-page'));
-  var TOTAL = pages.length;
+  var TOTAL_PHASES = pages.length;
   var nav = document.getElementById('phaseNav');
   var search = document.getElementById('nodeSearch');
   var hint = document.getElementById('searchHint');
   var sidebar = document.getElementById('sidebar');
   var backdrop = document.getElementById('navBackdrop');
   var menuToggle = document.getElementById('menuToggle');
-  var mobileQuery = window.matchMedia('(max-width: 900px)');
-  var current = 1;
-  var phaseItems = [];   // { btn, list, links: [{a, sec, central}] }
-  var observer = null;
+  var crumb = document.getElementById('crumb');
+  var groupNav = document.getElementById('groupNav');
+  var pagerLabel = document.getElementById('pagerLabel');
+  var mobile = window.matchMedia('(max-width: 900px)');
 
-  function escapeHtml(s) {
+  var phases = [];   // { page, num, name, btn, groups: [...], nodes: [entry...] }
+  var flat = [];     // todos os nós na ordem do documento
+  var byId = {};
+  var currentEntry = null;
+
+  function esc(s) {
     return s.replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; });
   }
 
-  // ---------- Monta o menu lateral a partir das seções existentes ----------
-  var ol = document.createElement('ol');
+  // ---------- Índice: fase > bloco central > subtópicos ----------
   pages.forEach(function (page, idx) {
-    var n = idx + 1;
-    var name = page.getAttribute('data-phase-name');
-    var nodes = page.querySelectorAll('section.node');
-    var li = document.createElement('li');
+    var phase = {
+      page: page, num: idx + 1, name: page.getAttribute('data-phase-name'),
+      groups: [], nodes: [], title: page.querySelector('.phase-title')
+    };
+    var group = null;
+    page.querySelectorAll('section.node').forEach(function (sec) {
+      var central = sec.getAttribute('data-central') === 'true';
+      var entry = {
+        sec: sec, id: sec.id, title: sec.getAttribute('data-node-title'),
+        central: central, phase: phase, group: null, flatIndex: flat.length
+      };
+      if (central) { group = { head: entry, items: [entry], li: null, list: null }; phase.groups.push(group); }
+      else if (group) { group.items.push(entry); }
+      entry.group = group;
+      phase.nodes.push(entry);
+      flat.push(entry);
+      byId[entry.id] = entry;
+    });
+    phases.push(phase);
+  });
 
+  // ---------- Menu lateral ----------
+  var ol = document.createElement('ol');
+  phases.forEach(function (phase) {
+    var li = document.createElement('li');
     var btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'phase-btn';
-    btn.setAttribute('aria-controls', 'topics-' + n);
-    btn.innerHTML = '<span class="num">' + n + '</span><span class="name">' + escapeHtml(name) +
-      '</span><span class="count" title="Tópicos nesta fase">' + nodes.length + '</span>';
+    btn.innerHTML = '<span class="num">' + phase.num + '</span><span class="name">' + esc(phase.name) +
+      '</span><span class="count" title="Tópicos nesta fase">' + phase.nodes.length + '</span>';
     btn.addEventListener('click', function () {
       clearSearch();
-      showPhase(n);
-      closeMenu();
+      open(phase.groups[0].head);   // fase sem tópico escolhido abre o primeiro
     });
 
     var list = document.createElement('ul');
     list.className = 'topic-list';
-    list.id = 'topics-' + n;
     list.hidden = true;
 
-    var links = [];
-    nodes.forEach(function (sec) {
-      var central = sec.getAttribute('data-central') === 'true';
-      var itemLi = document.createElement('li');
-      var a = document.createElement('a');
-      a.href = '#' + sec.id;
-      a.className = 'topic-link ' + (central ? 'central' : 'sub');
-      a.textContent = sec.getAttribute('data-node-title');
-      a.addEventListener('click', function (e) {
-        e.preventDefault();
-        goToNode(sec, n);
-        closeMenu();
+    phase.groups.forEach(function (group) {
+      var gLi = document.createElement('li');
+      gLi.appendChild(makeLink(group.head, false));
+      var subList = document.createElement('ul');
+      subList.className = 'sub-list';
+      subList.hidden = true;
+      group.items.slice(1).forEach(function (entry) {
+        var sLi = document.createElement('li');
+        sLi.appendChild(makeLink(entry, true));
+        subList.appendChild(sLi);
       });
-      itemLi.appendChild(a);
-      list.appendChild(itemLi);
-      links.push({ a: a, li: itemLi, sec: sec, central: central, title: a.textContent });
+      gLi.appendChild(subList);
+      group.li = gLi;
+      group.list = subList;
+      list.appendChild(gLi);
     });
 
+    phase.btn = btn;
+    phase.list = list;
+    phase.li = li;
     li.appendChild(btn);
     li.appendChild(list);
     ol.appendChild(li);
-    phaseItems.push({ li: li, btn: btn, list: list, links: links });
   });
   nav.appendChild(ol);
+
   var emptyMsg = document.createElement('p');
   emptyMsg.className = 'nav-empty';
   emptyMsg.hidden = true;
   emptyMsg.textContent = 'Nenhum tópico encontrado. Tente outro termo.';
   nav.appendChild(emptyMsg);
 
-  // Mostra só os tópicos centrais da fase ativa (subtópicos aparecem na busca)
-  function resetTopicLists() {
-    phaseItems.forEach(function (item, idx) {
-      item.li.hidden = false;
-      item.list.hidden = (idx !== current - 1);
-      item.links.forEach(function (l) {
-        l.li.hidden = !l.central;
-        l.a.textContent = l.title;
-      });
-    });
-    emptyMsg.hidden = true;
+  function makeLink(entry, isSub) {
+    var a = document.createElement('a');
+    a.href = '#' + entry.id;
+    a.className = 'topic-link' + (isSub ? ' sub' : '');
+    a.textContent = entry.title;
+    a.addEventListener('click', function (e) { e.preventDefault(); open(entry); closeMenu(); });
+    entry.link = a;
+    return a;
   }
 
-  // ---------- Troca de fase: só a fase ativa fica renderizada ----------
-  function showPhase(n, opts) {
+  // ---------- Abre um único tópico ----------
+  function open(entry, opts) {
     opts = opts || {};
-    n = Math.max(1, Math.min(TOTAL, n));
-    pages.forEach(function (p, idx) { p.hidden = (idx !== n - 1); });
-    current = n;
-    phaseItems.forEach(function (item, idx) {
-      item.btn.setAttribute('aria-current', idx === n - 1 ? 'true' : 'false');
-      item.btn.setAttribute('aria-expanded', idx === n - 1 ? 'true' : 'false');
+    currentEntry = entry;
+    var phase = entry.phase;
+
+    pages.forEach(function (p) { p.hidden = p !== phase.page; });
+    phase.nodes.forEach(function (n) { n.sec.hidden = n !== entry; });
+
+    // menu: fase ativa expandida, subtópicos do bloco ativo à mostra
+    phases.forEach(function (p) {
+      p.btn.setAttribute('aria-current', p === phase ? 'true' : 'false');
+      if (!search.value.trim()) p.list.hidden = p !== phase;
     });
-    if (!search.value.trim()) resetTopicLists();
-    document.querySelectorAll('.phaseCurrentNum').forEach(function (el) { el.textContent = n; });
-    document.querySelectorAll('.prevPhaseBtn').forEach(function (b) { b.disabled = n === 1; });
-    document.querySelectorAll('.nextPhaseBtn').forEach(function (b) { b.disabled = n === TOTAL; });
-    document.title = 'Fase ' + n + ': ' + pages[n - 1].getAttribute('data-phase-name') + ' — Roadmap Curado';
-    observeTopics();
+    flat.forEach(function (n) {
+      if (n.link) n.link.setAttribute('aria-current', n === entry ? 'true' : 'false');
+    });
+    phase.groups.forEach(function (g) {
+      if (!search.value.trim()) g.list.hidden = g !== entry.group;
+    });
+
+    // trilha e navegação do bloco, logo abaixo do título da fase
+    var pos = phase.nodes.indexOf(entry) + 1;
+    crumb.innerHTML = 'Bloco <b>' + esc(entry.group.head.title) + '</b> · tópico ' + pos + ' de ' + phase.nodes.length + ' da fase';
+    groupNav.innerHTML = '';
+    entry.group.items.forEach(function (n, i) {
+      var chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'chip' + (i === 0 ? ' head' : '');
+      chip.textContent = n.title;
+      chip.setAttribute('aria-current', n === entry ? 'true' : 'false');
+      chip.addEventListener('click', function () { open(n); });
+      groupNav.appendChild(chip);
+    });
+    phase.title.insertAdjacentElement('afterend', groupNav);
+    phase.title.insertAdjacentElement('afterend', crumb);
+
+    pagerLabel.textContent = 'Fase ' + phase.num + '/' + TOTAL_PHASES;
+    document.querySelector('.prevNodeBtn').disabled = entry.flatIndex === 0;
+    document.querySelector('.nextNodeBtn').disabled = entry.flatIndex === flat.length - 1;
+    document.title = entry.title + ' — Fase ' + phase.num + ' · Roadmap Curado';
+
+    if (!opts.skipHash) history.replaceState(null, '', '#' + entry.id);
     if (!opts.skipScroll) window.scrollTo({ top: 0, behavior: 'auto' });
-    if (!opts.skipHash) history.replaceState(null, '', '#fase-' + n);
-    var activeBtn = phaseItems[n - 1].btn;
-    if (activeBtn.scrollIntoView && !opts.keepNavScroll) activeBtn.scrollIntoView({ block: 'nearest' });
-  }
-
-  function goToNode(sec, n) {
-    if (n !== current) showPhase(n, { skipScroll: true, skipHash: true, keepNavScroll: true });
-    var raf = window.requestAnimationFrame || function (fn) { setTimeout(fn, 0); };
-    raf(function () {
-      var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      sec.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
-      history.replaceState(null, '', '#' + sec.id);
-      setActiveLink(sec.id);
-    });
-  }
-
-  // ---------- Destaque do tópico visível (scroll spy) ----------
-  function setActiveLink(id) {
-    var item = phaseItems[current - 1];
-    if (!item) return;
-    var centralId = id.split('--')[0];
-    item.links.forEach(function (l) {
-      var on = l.sec.id === id || (l.central && l.sec.id === centralId);
-      l.a.classList.toggle('is-active', on);
-    });
-  }
-  function observeTopics() {
-    if (!('IntersectionObserver' in window)) return;
-    if (observer) observer.disconnect();
-    observer = new IntersectionObserver(function (entries) {
-      entries.forEach(function (en) { if (en.isIntersecting) setActiveLink(en.target.id); });
-    }, { rootMargin: '-70px 0px -70% 0px' });
-    pages[current - 1].querySelectorAll('section.node').forEach(function (s) { observer.observe(s); });
+    if (entry.link && entry.link.scrollIntoView && !opts.keepNavScroll) {
+      entry.link.scrollIntoView({ block: 'nearest' });
+    }
   }
 
   // ---------- Busca em todas as fases ----------
   function clearSearch() { if (search.value) { search.value = ''; hint.textContent = ''; } }
+  function restoreNav() {
+    phases.forEach(function (p) {
+      p.li.hidden = false;
+      p.list.hidden = !currentEntry || p !== currentEntry.phase;
+      p.groups.forEach(function (g) {
+        g.li.hidden = false;
+        g.list.hidden = !currentEntry || g !== currentEntry.group;
+        g.items.forEach(function (n) { if (n.link) n.link.textContent = n.title; });
+        g.items.slice(1).forEach(function (n) { n.link.parentNode.hidden = false; });
+      });
+    });
+    emptyMsg.hidden = true;
+  }
   function runSearch(q) {
     q = q.trim().toLowerCase();
-    if (!q) { hint.textContent = ''; resetTopicLists(); return; }
+    if (!q) { hint.textContent = ''; restoreNav(); return; }
     var total = 0;
-    phaseItems.forEach(function (item) {
-      var hits = 0;
-      item.links.forEach(function (l) {
-        var i = l.title.toLowerCase().indexOf(q);
-        var match = i !== -1;
-        l.li.hidden = !match;
-        if (match) {
-          hits++;
-          l.a.innerHTML = escapeHtml(l.title.slice(0, i)) + '<mark>' + escapeHtml(l.title.slice(i, i + q.length)) +
-            '</mark>' + escapeHtml(l.title.slice(i + q.length));
-        } else {
-          l.a.textContent = l.title;
-        }
+    phases.forEach(function (phase) {
+      var phaseHits = 0;
+      phase.groups.forEach(function (g) {
+        var hits = 0;
+        g.items.forEach(function (n, i) {
+          var pos = n.title.toLowerCase().indexOf(q);
+          var match = pos !== -1;
+          if (match) {
+            hits++;
+            n.link.innerHTML = esc(n.title.slice(0, pos)) + '<mark>' + esc(n.title.slice(pos, pos + q.length)) +
+              '</mark>' + esc(n.title.slice(pos + q.length));
+          } else {
+            n.link.textContent = n.title;
+          }
+          if (i > 0) n.link.parentNode.hidden = !match;
+        });
+        g.list.hidden = hits === 0 || (hits === 1 && g.head.title.toLowerCase().indexOf(q) !== -1 &&
+          g.items.slice(1).every(function (n) { return n.link.parentNode.hidden; }));
+        g.li.hidden = hits === 0;
+        phaseHits += hits;
       });
-      item.list.hidden = hits === 0;
-      item.li.hidden = hits === 0;
-      total += hits;
+      phase.list.hidden = phaseHits === 0;
+      phase.li.hidden = phaseHits === 0;
+      total += phaseHits;
     });
     emptyMsg.hidden = total !== 0;
     hint.textContent = total ? total + (total === 1 ? ' tópico encontrado' : ' tópicos encontrados') : '';
   }
   search.addEventListener('input', function (e) { runSearch(e.target.value); });
-  search.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape') { clearSearch(); resetTopicLists(); }
-  });
+  search.addEventListener('keydown', function (e) { if (e.key === 'Escape') { clearSearch(); restoreNav(); } });
 
-  // ---------- Anterior / próxima ----------
-  document.querySelectorAll('.prevPhaseBtn').forEach(function (b) {
-    b.addEventListener('click', function () { showPhase(current - 1); });
+  // ---------- Anterior / próximo (segue a ordem do roadmap, inclusive entre fases) ----------
+  document.querySelector('.prevNodeBtn').addEventListener('click', function () {
+    if (currentEntry.flatIndex > 0) open(flat[currentEntry.flatIndex - 1]);
   });
-  document.querySelectorAll('.nextPhaseBtn').forEach(function (b) {
-    b.addEventListener('click', function () { showPhase(current + 1); });
+  document.querySelector('.nextNodeBtn').addEventListener('click', function () {
+    if (currentEntry.flatIndex < flat.length - 1) open(flat[currentEntry.flatIndex + 1]);
   });
 
   // ---------- Menu no celular ----------
   function openMenu() {
     sidebar.classList.add('open'); backdrop.classList.add('open');
-    menuToggle.setAttribute('aria-expanded', 'true');
-    search.focus();
+    menuToggle.setAttribute('aria-expanded', 'true'); search.focus();
   }
   function closeMenu() {
-    if (!mobileQuery.matches) return;
+    if (!mobile.matches) return;
     sidebar.classList.remove('open'); backdrop.classList.remove('open');
     menuToggle.setAttribute('aria-expanded', 'false');
   }
@@ -41290,21 +41343,22 @@ com paywall ou assinatura obrigatória foi incluído.
     if (e.key === 'Escape' && sidebar.classList.contains('open')) { closeMenu(); menuToggle.focus(); }
   });
 
-  // ---------- Links diretos (#fase-3 ou #id-do-tópico) ----------
+  // ---------- Links diretos: #id-do-tópico ou #fase-3 ----------
   function initFromHash() {
     var hash = decodeURIComponent(location.hash.replace('#', ''));
+    if (byId[hash]) { open(byId[hash], { skipHash: true }); return; }
     var m = hash.match(/^fase-(\d+)$/);
-    if (m) { showPhase(parseInt(m[1], 10), { skipHash: true }); return; }
-    var target = hash && document.getElementById(hash);
-    var page = target && target.closest('.phase-page');
-    if (page) {
-      showPhase(parseInt(page.getAttribute('data-phase-num'), 10), { skipHash: true, skipScroll: true });
-      goToNode(target, current);
+    if (m) {
+      var p = phases[Math.max(1, Math.min(TOTAL_PHASES, parseInt(m[1], 10))) - 1];
+      open(p.groups[0].head, { skipHash: true });
       return;
     }
-    showPhase(1, { skipHash: true, skipScroll: true });
+    open(flat[0], { skipHash: true, skipScroll: true });
   }
-  window.addEventListener('hashchange', initFromHash);
+  window.addEventListener('hashchange', function () {
+    var hash = decodeURIComponent(location.hash.replace('#', ''));
+    if (byId[hash] && byId[hash] !== currentEntry) open(byId[hash], { skipHash: true });
+  });
 
   // ---------- Tema ----------
   var themeToggle = document.getElementById('themeToggle');
