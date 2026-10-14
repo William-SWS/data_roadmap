@@ -128,16 +128,40 @@ details.fold{border:1px solid var(--rule); border-radius:3px; margin:8px 0; padd
 details.fold > summary{cursor:pointer; padding:10px 0; font-family:var(--mono); font-size:.8rem; text-transform:uppercase; letter-spacing:.06em; color:var(--accent-ink)}
 details.fold[open]{padding-bottom:10px}
 
-/* pager */
-.pager{display:grid; grid-template-columns:1fr auto 1fr; gap:10px; align-items:center; margin-top:28px; padding-top:16px; border-top:1px solid var(--rule)}
-.pbtn{display:flex; flex-direction:column; gap:2px; border:1px solid var(--rule); background:var(--panel); border-radius:3px; padding:9px 12px; cursor:pointer; text-align:left; min-width:0}
-.pbtn.next{text-align:right; justify-self:end}
-.pbtn:hover{border-color:var(--accent)}
+/* position header (top of card) */
+.card{position:relative}
+.pbar{position:absolute; top:0; left:0; right:0; height:3px; background:var(--accent-soft)}
+.pbar i{display:block; height:100%; width:0; background:var(--accent); transition:width .25s ease}
+.ptop{display:flex; align-items:center; gap:12px; margin:-6px 0 18px; padding-bottom:12px; border-bottom:1px solid var(--rule); min-width:0}
+.pgroup{flex:1 1 auto; min-width:0; font-family:var(--mono); font-size:.7rem; letter-spacing:.08em; text-transform:uppercase; color:var(--faint); overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.pgroup b{color:var(--accent-ink); font-weight:500}
+.pdots{display:flex; flex-wrap:wrap; gap:4px; list-style:none; margin:0; padding:0; flex:none; max-width:50%}
+.pdots button{display:block; width:10px; height:10px; padding:0; border:0; border-radius:5px; background:var(--rule); cursor:pointer; transition:width .2s ease, background .2s ease}
+.pdots button:hover{background:var(--accent-ink)}
+.pdots button[aria-current="page"]{width:22px; background:var(--accent)}
+.pmini{flex:none; display:inline-flex; gap:4px}
+.pmini button{width:30px; height:28px; border:1px solid var(--rule); background:var(--panel); border-radius:3px; cursor:pointer; font-family:var(--mono); font-size:.9rem; line-height:1; color:var(--muted)}
+.pmini button:hover:not([disabled]){border-color:var(--accent); color:var(--accent-ink)}
+.pmini button[disabled]{opacity:.35; cursor:default}
+@media (max-width:600px){ .ptop{margin-top:-2px; flex-wrap:wrap; row-gap:8px} .pgroup{flex-basis:calc(100% - 80px); white-space:normal; line-height:1.5} .pdots{order:3; max-width:none; flex-basis:100%} }
+@media (prefers-reduced-motion: reduce){ .pbar i, .pdots button{transition:none} }
+
+/* pager (bottom of card) */
+.pager{display:grid; grid-template-columns:minmax(0,1fr) auto minmax(0,1fr); gap:10px; align-items:stretch; margin-top:28px; padding-top:16px; border-top:1px solid var(--rule)}
+.pbtn{display:flex; flex-direction:column; justify-content:center; gap:3px; border:1px solid var(--rule); background:var(--panel); border-radius:3px; padding:10px 14px; cursor:pointer; text-align:left; min-width:0}
+.pbtn.next{text-align:right; align-items:flex-end}
+.pbtn:hover{border-color:var(--accent); background:var(--accent-soft)}
 .pbtn[disabled]{visibility:hidden}
-.pbtn small{font-family:var(--mono); font-size:.66rem; letter-spacing:.1em; text-transform:uppercase; color:var(--faint)}
-.pbtn span{font-size:.86rem; color:var(--ink); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:32ch}
-.pcount{font-family:var(--mono); font-size:.72rem; color:var(--faint); white-space:nowrap}
-@media (max-width:600px){ .pager{grid-template-columns:1fr 1fr} .pcount{grid-column:1 / -1; grid-row:1; text-align:center} .pbtn span{max-width:16ch} }
+.pbtn small{font-family:var(--mono); font-size:.66rem; letter-spacing:.1em; text-transform:uppercase; color:var(--faint); max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.pbtn small em{font-style:normal; color:var(--accent-ink)}
+.pbtn span{font-size:.88rem; line-height:1.35; color:var(--ink); display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden}
+.pjump{position:relative; align-self:center; display:inline-flex; align-items:center; gap:6px; border:1px solid var(--rule); border-radius:3px; padding:6px 10px; background:var(--panel); cursor:pointer}
+.pjump:hover, .pjump:focus-within{border-color:var(--accent)}
+.pjump:focus-within{outline:2px solid var(--accent); outline-offset:2px}
+.pjump select{position:absolute; inset:0; width:100%; height:100%; opacity:0; cursor:pointer; font-size:16px}
+.pcount{font-family:var(--mono); font-size:.72rem; color:var(--muted); white-space:nowrap}
+.pjump .caret{font-size:.6rem; color:var(--faint)}
+@media (max-width:600px){ .pager{grid-template-columns:minmax(0,1fr) minmax(0,1fr)} .pjump{grid-column:1 / -1; grid-row:1; justify-self:center} }
 .foot{max-width:880px; margin:14px auto 0; font-family:var(--mono); font-size:.7rem; color:var(--faint); text-align:center}
 .foot kbd{font-family:var(--mono); border:1px solid var(--rule); border-bottom-width:2px; border-radius:3px; padding:0 4px}
 </style>
@@ -158,6 +182,12 @@ details.fold[open]{padding-bottom:10px}
   </nav>
   <main class="main">
     <article class="card">
+      <div class="pbar" aria-hidden="true"><i id="pbarFill"></i></div>
+      <div class="ptop">
+        <span class="pgroup" id="pgroup"></span>
+        <ol class="pdots" id="pdots" aria-label="Pages in this section"></ol>
+        <span class="pmini"><button id="prevMini" type="button" aria-label="Previous page">‹</button><button id="nextMini" type="button" aria-label="Next page">›</button></span>
+      </div>
       <section class="page" id="p-overview" aria-labelledby="t-overview"><p class="eyebrow">Start here</p><h2 class="ptitle" id="t-overview">1. Overview</h2><div class="content"><p><strong>Subject:</strong> the full stack of modern data work, covering every node in the attached roadmap: Python engineering, backend services, databases, analysis, machine learning, deep learning, MLOps, big-data systems, cloud architecture, system design, production operations and advanced AI systems (LLMs, RAG, agents).</p>
 <p><strong>Target level:</strong> Level 3, <em>Independent</em>, as a full-stack data professional. You will be able to choose and defend the right tool or pattern for a new situation across the stack. Depth varies on purpose (see the per-phase targets in <a class="secref" href="#roadmap">§4</a>). Topics you can only emulate locally (managed cloud services) or that are rarely needed in data platforms (GANs, reinforcement learning) are held at Level 2 or survey level, and the plan says so wherever that applies.</p>
 <p><strong>Duration and load:</strong> 52 weeks, about <strong>700 core hours (≈ 13.5 h/week)</strong>, inside your 15–20 h/week range. There is a cut list for weeks when you have less time (<a class="secref" href="#workload">§4.1</a>).</p>
@@ -10417,19 +10447,20 @@ Out of scope:    - Paid cloud accounts and certifications (excluded by your
 </tbody>
 </table></div></div></section>
       <nav class="pager" aria-label="Page navigation">
-        <button class="pbtn prev" id="prevBtn" type="button"><small>← Previous</small><span></span></button>
-        <span class="pcount mono" id="pcount"></span>
-        <button class="pbtn next" id="nextBtn" type="button"><small>Next →</small><span></span></button>
+        <button class="pbtn prev" id="prevBtn" type="button"><small>← Previous<em></em></small><span></span></button>
+        <label class="pjump"><span class="pcount mono" id="pcount"></span><span class="caret" aria-hidden="true">▼</span><select id="pjump" aria-label="Jump to page"></select></label>
+        <button class="pbtn next" id="nextBtn" type="button"><small><em></em>Next →</small><span></span></button>
       </nav>
     </article>
-    <p class="foot">Use <kbd>←</kbd> <kbd>→</kbd> to change page and <kbd>/</kbd> to search. Ticks are saved in this browser only. Sources checked 24 Sep 2026.</p>
+    <p class="foot">Use <kbd>←</kbd> <kbd>→</kbd> to change page, <kbd>Shift</kbd>+<kbd>←</kbd> <kbd>→</kbd> to change section and <kbd>/</kbd> to search. Ticks are saved in this browser only. Sources checked 24 Sep 2026.</p>
   </main>
 </div>
 <script>window.__NAV__ = [{"id": "start", "num": "0", "title": "Start here", "kind": "plan", "pages": [["overview", "1. Overview"], ["profile", "2. Learner profile and assumptions"], ["outcomes", "3. Learning outcomes"], ["roadmap", "4. Learning roadmap"], ["workload", "4.1 Workload audit"]]}, {"id": "phase1", "num": "1", "title": "Python Fundamentals", "kind": "phase", "pages": [["w01", "W01 · Diagnostic, development environment and the CareFlow repository"], ["w02", "W02 · Advanced language features and object-oriented design"], ["w03", "W03 · Software engineering: testing, packaging, quality gates and CI"]]}, {"id": "phase2", "num": "2", "title": "Backend Engineering", "kind": "phase", "pages": [["w04", "W04 · Web frameworks: FastAPI, validation and dependency injection"], ["w05", "W05 · API architecture and authentication security"], ["w06", "W06 · Database integration: ORM, migrations, transactions and caching"], ["w07", "W07 · Background processing: queues, workers, schedules and events"], ["w08", "W08 · Production deployment: containers, compose, proxies and telemetry"]]}, {"id": "phase3", "num": "3", "title": "Database Management", "kind": "phase", "pages": [["w09", "W09 · Relational design and data modelling"], ["w10", "W10 · Advanced SQL, query plans and the warehouse"], ["w11", "W11 · NoSQL systems: documents, key-value, wide-column, graph and consistency"], ["w12", "W12 · Administration and data movement: backup, security, ETL, CDC and validation"]]}, {"id": "phase4", "num": "4", "title": "Data Analysis", "kind": "phase", "pages": [["w13", "W13 · Data wrangling and exploratory analysis"], ["w14", "W14 · Statistical foundations and experimentation"], ["w15", "W15 · Visualisation, BI and analytical tooling"]]}, {"id": "integration1", "num": "◆", "title": "Integration 1", "kind": "milestone", "pages": [["w16", "W16 · Integration project 1: CareFlow v1, plus mid-plan review 1"]]}, {"id": "phase5", "num": "5", "title": "Machine Learning", "kind": "phase", "pages": [["w17", "W17 · Data preprocessing, pipelines and leakage"], ["w18", "W18 · Supervised learning: from linear models to gradient boosting"], ["w19", "W19 · Unsupervised learning and anomaly detection"], ["w20", "W20 · Model evaluation, thresholds, tuning and fairness"], ["w21", "W21 · Experiment tracking and production readiness"]]}, {"id": "phase6", "num": "6", "title": "Deep Learning", "kind": "phase", "pages": [["w22", "W22 · Neural networks from scratch and PyTorch mastery"], ["w23", "W23 · Computer vision: CNNs, transfer learning and augmentation"], ["w24", "W24 · Natural language: embeddings, RNNs, attention and transformers"], ["w25", "W25 · Advanced architectures (survey) and the limits of deep learning"], ["w26", "W26 · Training infrastructure: GPUs, precision, memory and distribution"]]}, {"id": "integration2", "num": "◆", "title": "Integration 2", "kind": "milestone", "pages": [["w27", "W27 · Integration project 2: CareFlow ML service, plus mid-plan review 2"]]}, {"id": "phase7", "num": "7", "title": "MLOps Engineering", "kind": "phase", "pages": [["w28", "W28 · Pipeline orchestration with DAGs"], ["w29", "W29 · Model serving: REST, gRPC, containers and progressive delivery"], ["w30", "W30 · Feature stores and point-in-time correctness"], ["w31", "W31 · Monitoring and observability for ML services"], ["w32", "W32 · CI/CD for ML, governance and security"]]}, {"id": "phase8", "num": "8", "title": "Big Data Systems", "kind": "phase", "pages": [["w33", "W33 · Distributed computing and the Spark ecosystem"], ["w34", "W34 · Cloud storage patterns: data lakes, lakehouses and file formats"], ["w35", "W35 · Stream processing: logs, windows, state and exactly-once"], ["w36", "W36 · Query engines and cluster management"]]}, {"id": "phase9", "num": "9", "title": "Cloud Architecture", "kind": "phase", "pages": [["w37", "W37 · Cloud foundations: identity, networks, cost and compliance"], ["w38", "W38 · Compute services: VMs, serverless, containers and Kubernetes"], ["w39", "W39 · Storage, database and networking services"], ["w40", "W40 · Infrastructure as code: state, modules, drift and policy"]]}, {"id": "phase10", "num": "10", "title": "System Design", "kind": "phase", "pages": [["w41", "W41 · Architecture patterns and scalability"], ["w42", "W42 · Reliability patterns and data consistency"], ["w43", "W43 · Performance tuning and trade-off analysis"]]}, {"id": "phase11", "num": "11", "title": "Production Operations", "kind": "phase", "pages": [["w44", "W44 · Monitoring, incidents and security operations"], ["w45", "W45 · Deployment strategies, releases, cost and maintenance"]]}, {"id": "phase12", "num": "12", "title": "Advanced AI Systems", "kind": "phase", "pages": [["w46", "W46 · Large language models: from tokens to local inference"], ["w47", "W47 · Retrieval-augmented generation"], ["w48", "W48 · Evaluating LLM systems and responsible AI"], ["w49", "W49 · Fine-tuning and agentic systems"]]}, {"id": "capstone", "num": "★", "title": "Capstone", "kind": "milestone", "pages": [["w50", "W50 · Capstone build: integration and hardening"], ["w51", "W51 · Capstone documentation, review and feedback"], ["w52", "W52 · Capstone release, presentation and retrospective"]]}, {"id": "frameworks", "num": "F", "title": "Frameworks and models", "kind": "ref", "pages": [["concept-map", "6.1 Concept map"], ["model-01", "REST (Fielding, 2000)"], ["model-02", "Twelve-Factor App"], ["model-03", "Relational model and normalisation"], ["model-04", "Dimensional modelling (Kimball)"], ["model-05", "CAP and consistency models"], ["model-06", "Bias–variance and the classical ML workflow"], ["model-07", "Transformer architecture"], ["model-08", "ML technical debt and the ML Test Score"], ["model-09", "Lakehouse"], ["model-10", "Dataflow model and the log"], ["model-11", "SRE and SLOs"], ["model-12", "Retrieval-augmented generation and workflows vs agents"]]}, {"id": "debates", "num": "D", "title": "Critical discussions", "kind": "ref", "pages": [["debate-1", "7.1 Monolith first or services first?"], ["debate-2", "7.2 Relational vs NoSQL"], ["debate-3", "7.3 Do you have big data?"], ["debate-4", "7.4 Cloud or on-premises?"], ["debate-5", "7.5 Deep learning vs simpler models, and the limits of deep learning"], ["debate-6", "7.6 Agents, RAG and evaluation"], ["debate-7", "7.7 Smaller disputes you will meet"]]}, {"id": "sources", "num": "S", "title": "Verified sources", "kind": "ref", "pages": [["sources-about", "About the sources"], ["sources-1", "Original research, standards and primary texts"], ["sources-2", "Textbooks, books and peer-reviewed syntheses"], ["sources-3", "Official documentation and frameworks"], ["sources-4", "University courses and open courses (with videos)"], ["sources-5", "Practitioner essays, analyses and cases"], ["sources-6", "Tools, datasets and practice platforms"]]}, {"id": "practice", "num": "P", "title": "Practice and tracking", "kind": "ref", "pages": [["exercises", "9. Practical exercises"], ["reflection", "10. Reflection and discussion questions"], ["checkpoints", "11. Checkpoints and evidence"], ["tracker", "12. Progress tracker"]]}, {"id": "final", "num": "R", "title": "Final project and review", "kind": "ref", "pages": [["final-project", "13. Final project — CareFlow v3"], ["rubric", "14. Assessment rubric"], ["checklist", "15. Quality checklist"], ["next-steps", "16. Next steps"]]}, {"id": "coverage", "num": "A", "title": "Roadmap coverage (576 nodes)", "kind": "ref", "pages": [["cov-01", "Python Fundamentals"], ["cov-02", "Backend Engineering"], ["cov-03", "Database Management"], ["cov-04", "Data Analysis"], ["cov-05", "Machine Learning"], ["cov-06", "Deep Learning"], ["cov-07", "MLOps Engineering"], ["cov-08", "Big Data Systems"], ["cov-09", "Cloud Architecture"], ["cov-10", "System Design"], ["cov-11", "Production Operations"], ["cov-12", "Advanced AI Systems"]]}];</script>
 <script>(function(){
   var NAV = window.__NAV__;              // [{id,num,title,kind,pages:[[id,title,cov]]}]
-  var order = [], pageGroup = {}, titles = {};
-  NAV.forEach(function(g){ g.pages.forEach(function(p){ order.push(p[0]); pageGroup[p[0]] = g.id; titles[p[0]] = p[1]; }); });
+  var order = [], pageGroup = {}, titles = {}, groups = {};
+  NAV.forEach(function(g){ groups[g.id] = g; g.pages.forEach(function(p){ order.push(p[0]); pageGroup[p[0]] = g.id; titles[p[0]] = p[1]; }); });
+  function groupLabel(g){ return g.kind==='phase' ? 'Phase '+g.num+' · '+g.title : g.title; }
   var $ = function(s, r){ return (r||document).querySelector(s); };
   var $$ = function(s, r){ return Array.prototype.slice.call((r||document).querySelectorAll(s)); };
   function store(k, v){ try{ if(v===undefined) return localStorage.getItem(k); localStorage.setItem(k, v); }catch(e){ return null; } }
@@ -10469,8 +10500,24 @@ Out of scope:    - Paid cloud accounts and certifications (excluded by your
     $$('.pages a.current').forEach(function(a){ a.classList.remove('current'); });
     var link = $('.pages a[data-p="'+pid+'"]'); if(link){ link.classList.add('current'); if(!inView(link)) link.scrollIntoView({block:'nearest'}); }
     var i = order.indexOf(pid);
-    setPager($('#prevBtn'), order[i-1]); setPager($('#nextBtn'), order[i+1]);
+    setPager($('#prevBtn'), order[i-1], pid); setPager($('#nextBtn'), order[i+1], pid);
+    $('#prevMini').disabled = !order[i-1]; $('#nextMini').disabled = !order[i+1];
     $('#pcount').textContent = 'Page ' + (i+1) + ' of ' + order.length;
+    $('#pjump').value = pid;
+    $('#pbarFill').style.width = ((i+1) / order.length * 100) + '%';
+    var g = groups[pageGroup[pid]], gi = g.pages.findIndex(function(p){ return p[0]===pid; });
+    $('#pgroup').innerHTML = '';
+    var gb = document.createElement('b'); gb.textContent = groupLabel(g); $('#pgroup').appendChild(gb);
+    if(g.pages.length>1) $('#pgroup').appendChild(document.createTextNode(' · ' + (gi+1) + '/' + g.pages.length));
+    $('#pgroup').title = groupLabel(g);
+    var dots = $('#pdots'); dots.innerHTML = '';
+    if(g.pages.length>1) g.pages.forEach(function(p, k){
+      var li = document.createElement('li'), b = document.createElement('button');
+      b.type = 'button'; b.title = p[1]; b.setAttribute('aria-label', (k+1) + '. ' + p[1]);
+      if(p[0]===pid) b.setAttribute('aria-current', 'page');
+      b.addEventListener('click', function(){ go(p[0]); });
+      li.appendChild(b); dots.appendChild(li);
+    });
     document.title = titles[pid].replace(/^W\d\d · /,'') + ' · CareFlow Year';
     renderDiagrams(pg);
     if(targetEl){ targetEl.scrollIntoView({block:'center'}); targetEl.classList.add('flash'); setTimeout(function(){ targetEl.classList.remove('flash'); }, 1800); }
@@ -10478,10 +10525,30 @@ Out of scope:    - Paid cloud accounts and certifications (excluded by your
     closeNav();
   }
   function inView(el){ var s = $('.side').getBoundingClientRect(), r = el.getBoundingClientRect(); return r.top>=s.top && r.bottom<=s.bottom; }
-  function setPager(btn, pid){
+  function setPager(btn, pid, from){
     if(!pid){ btn.disabled = true; btn.removeAttribute('data-p'); return; }
     btn.disabled = false; btn.setAttribute('data-p', pid); btn.querySelector('span').textContent = titles[pid];
+    btn.title = titles[pid];
+    // flag when the neighbour belongs to another section
+    var other = pageGroup[pid]!==pageGroup[from], em = btn.querySelector('small em');
+    em.textContent = other ? (btn.id==='prevBtn' ? ' · ' : '') + groupLabel(groups[pageGroup[pid]]) + (btn.id==='nextBtn' ? ' · ' : '') : '';
   }
+  function jumpGroup(dir){
+    var gid = pageGroup[current], k = NAV.findIndex(function(g){ return g.id===gid; });
+    var target = NAV[k+dir];
+    if(dir<0 && NAV[k].pages[0][0]!==current) target = NAV[k];   // first go to start of this section
+    if(target) go(target.pages[0][0]);
+  }
+  // jump select, grouped by section
+  (function(){
+    var sel = $('#pjump'), n = 0;
+    NAV.forEach(function(g){
+      var og = document.createElement('optgroup'); og.label = groupLabel(g);
+      g.pages.forEach(function(p){ var o = document.createElement('option'); o.value = p[0]; o.textContent = (++n) + '. ' + p[1]; og.appendChild(o); });
+      sel.appendChild(og);
+    });
+    sel.addEventListener('change', function(){ go(sel.value); });
+  })();
   function route(){
     var h = decodeURIComponent((location.hash||'').slice(1));
     if(!h){ show(store('cf-last') || order[0]); return; }
@@ -10503,10 +10570,13 @@ Out of scope:    - Paid cloud accounts and certifications (excluded by your
   });
   $('#prevBtn').addEventListener('click', function(){ var p=this.getAttribute('data-p'); if(p) go(p); });
   $('#nextBtn').addEventListener('click', function(){ var p=this.getAttribute('data-p'); if(p) go(p); });
+  $('#prevMini').addEventListener('click', function(){ var p=$('#prevBtn').getAttribute('data-p'); if(p) go(p); });
+  $('#nextMini').addEventListener('click', function(){ var p=$('#nextBtn').getAttribute('data-p'); if(p) go(p); });
   document.addEventListener('keydown', function(e){
-    var t = e.target.tagName; if(t==='INPUT'||t==='TEXTAREA'||e.metaKey||e.ctrlKey||e.altKey) return;
+    var t = e.target.tagName; if(t==='INPUT'||t==='TEXTAREA'||t==='SELECT'||e.metaKey||e.ctrlKey||e.altKey) return;
     var i = order.indexOf(current);
-    if(e.key==='ArrowRight' && order[i+1]){ go(order[i+1]); e.preventDefault(); }
+    if(e.shiftKey && (e.key==='ArrowRight'||e.key==='ArrowLeft')){ jumpGroup(e.key==='ArrowRight'?1:-1); e.preventDefault(); }
+    else if(e.key==='ArrowRight' && order[i+1]){ go(order[i+1]); e.preventDefault(); }
     else if(e.key==='ArrowLeft' && order[i-1]){ go(order[i-1]); e.preventDefault(); }
     else if(e.key==='/'){ $('#search').focus(); e.preventDefault(); }
   });
